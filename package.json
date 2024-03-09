@@ -22,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/murdhawke/dfetch/issues"
   },
-  "homepage": "https://github.com/murdhawke/dfetch#readme"
+  "homepage": "https://github.com/murdhawke/dfetch#readme",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "express": "^4.18.3",
+    "mongoose": "^8.2.0"
+  }
 }
