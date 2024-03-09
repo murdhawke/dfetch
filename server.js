@@ -1,32 +1,93 @@
-// Import required modules
-const express = require('express');
+//const express =  require('express');
+const axios = require("axios");
+const express =  require('express');
 const { Pool } = require('pg');
-const axios = require('axios');
+const fs = require('fs');
 
 
-// Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 5051;
+const port = 5051;
 
-// Route to fetch data from the REST API and store it in PostgreSQL
-app.get('/', async (req, res) => {
-    // Constructing the API URL with parameters
-    //Declare important variables
-    const api_key = 'E8MJ3PRaJzDYLrXtXC2uYNXF5N2MGR';
-    const from = 'USD';
-    const to = 'KES'; 
-    const amount = '100'; 
-    const apiUrl = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@?api_key=${$api_key}&from=${from}&to=${to}&amount=${amount}`;
-    
-    // Fetch data from the REST API
-    const response = await axios.get(apiUrl);
-    const apiData = response.data;
-    console.log(apiData);
 
-  });
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// PostgreSQL database configuration
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'dfetch',
+  password: 'amos1023',
+  port: 5432,
 });
+
+//Daily fetch function
+async function fetchDaily() {
+  const response = await axios.get('https://api.fxratesapi.com/latest?api_key=fxr_live_4460a5a34e870ea527614148ceb1a3676ae3');
+  fs.writeFile(__dirname + '/output.json', JSON.stringify(response.data), (err) => {
+    if (err) {
+      console.error('Error writing to file:', err);
+    } else {
+      console.log('Data written to file successfully');
+    }
+  })
+}
+    
+/*
+// Function to save data to PostgreSQL database
+async function saveToDatabase(data) {
+  try {
+    const columns = Object.keys(data);
+    const placeholders = columns.map((_, index) => `$${index + 1}`).join(',');
+    const values = Object.values(data);
+
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS daily (
+        id SERIAL PRIMARY KEY,
+        ${columns.map((column, index) => `${column} VARCHAR`).join(',')}
+      );
+    `;
+
+    await pool.query(createTableQuery);
+
+    const insertDataQuery = `
+      INSERT INTO daily (${columns.join(',')})
+      VALUES (${placeholders})
+    `;
+
+    await pool.query(insertDataQuery, values);
+    console.log('Data saved to database successfully');
+  } catch (error) {
+    console.error('Error saving data to database:', error);
+    throw error;
+  }
+}
+
+
+// Fetch data from API and save to database every 24 hours
+async function fetchDataAndSaveToDatabase() {
+  try {
+    const data = await fetchData();
+    await saveToDatabase(data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+*/
+// Start the Express server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+  fetchDaily();
+});
+
+
+/*const options = {
+	"method": "GET",
+	"url": "https://api.fxratesapi.com/latest?api_key=fxr_live_4460a5a34e870ea527614148ceb1a3676ae3"
+};
+
+axios.request(options).then(function (response) {
+  
+}).catch(function (error) {
+  console.error(error);
+});
+*/
 
