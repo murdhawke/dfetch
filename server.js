@@ -2,12 +2,11 @@
 const axios = require("axios");
 const express =  require('express');
 const { Pool } = require('pg');
-const fs = require('fs');
 
 
 const app = express();
 const port = 5051;
-
+const jsonData = {};
 
 // PostgreSQL database configuration
 const pool = new Pool({
@@ -21,73 +20,50 @@ const pool = new Pool({
 //Daily fetch function
 async function fetchDaily() {
   const response = await axios.get('https://api.fxratesapi.com/latest?api_key=fxr_live_4460a5a34e870ea527614148ceb1a3676ae3');
-  fs.writeFile(__dirname + '/output.json', JSON.stringify(response.data), (err) => {
-    if (err) {
-      console.error('Error writing to file:', err);
-    } else {
-      console.log('Data written to file successfully');
-    }
-  })
+  return response.data;
 }
+
+//Transform the rates{} object into an array and create a clean json object
+async function tranformRates(){
+  const data = await fetchDaily();
+  const rates = Object.entries(data.rates);
+  const cleanRates = {};
+  for (const [key, value] of rates) {
+    cleanRates[key] = value; // create a new json object with the rates lalbels and the values
+  }
+  const timestamp = data.timestamp;
+  const date = data.date;
+  const base = data.base;
+  const terms = data.terms;
+  const privacy = data.privacy;
+  const cleanInfo = {
+    "date": date,
+    "base": base,
+    "timestamp": timestamp,
+    "terms": terms,
+    "privacy": privacy,
     
-/*
-// Function to save data to PostgreSQL database
-async function saveToDatabase(data) {
-  try {
-    const columns = Object.keys(data);
-    const placeholders = columns.map((_, index) => `$${index + 1}`).join(',');
-    const values = Object.values(data);
-
-    const createTableQuery = `
-      CREATE TABLE IF NOT EXISTS daily (
-        id SERIAL PRIMARY KEY,
-        ${columns.map((column, index) => `${column} VARCHAR`).join(',')}
-      );
-    `;
-
-    await pool.query(createTableQuery);
-
-    const insertDataQuery = `
-      INSERT INTO daily (${columns.join(',')})
-      VALUES (${placeholders})
-    `;
-
-    await pool.query(insertDataQuery, values);
-    console.log('Data saved to database successfully');
-  } catch (error) {
-    console.error('Error saving data to database:', error);
-    throw error;
   }
+// Merge the two json objects
+  const jsonData = ({...cleanInfo, ...cleanRates});
+  return(jsonData);
 }
 
 
-// Fetch data from API and save to database every 24 hours
-async function fetchDataAndSaveToDatabase() {
-  try {
-    const data = await fetchData();
-    await saveToDatabase(data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
+//Function to save data to PostgreSQL database
+// Function to create table based on JSON data labels
+async function saveData() {
+  const dataJSON = await tranformRates();
+  console.log(JSON.stringify(dataJSON))
 }
 
-*/
+
+  
 // Start the Express server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
   fetchDaily();
+  tranformRates();
+  saveData();
 });
 
-
-/*const options = {
-	"method": "GET",
-	"url": "https://api.fxratesapi.com/latest?api_key=fxr_live_4460a5a34e870ea527614148ceb1a3676ae3"
-};
-
-axios.request(options).then(function (response) {
-  
-}).catch(function (error) {
-  console.error(error);
-});
-*/
 
