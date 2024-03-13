@@ -11,7 +11,7 @@ async function writeDaily() {
   const csv = converter.json2csv(data);
   const todayDate = new Date();
   const formattedDate = moment(todayDate).format('DD-MM-YYYY '); // use moment.js to format the date to dd-mm-yyyy.
-  fs.writeFile('forex' + ' ' + formattedDate + '.csv', csv, (err) => {
+  fs.writeFile(__dirname + '/../data/daily' + ' ' + formattedDate + '.csv', csv, (err) => {
     if (err) throw err;
     console.log('The file has been saved!');
   });
@@ -22,3 +22,8 @@ async function writeDaily() {
 }
 
 writeDaily();
+
+
+module.exports = {
+    writeDaily
+}
