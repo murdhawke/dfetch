@@ -87,7 +87,6 @@ function tranformRates() {
 function saveData() {
     return tranformRates()
       .then(dataJSON => {
-        console.log(JSON.stringify(dataJSON));
         return dataJSON;
       })
       .catch(error => {
