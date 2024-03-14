@@ -23,6 +23,8 @@
     "pg-hstore": "^2.3.4",
     "pgtools": "^1.0.1",
     "sequelize": "^6.37.1",
-    "sqlite3": "^5.1.7"
+    "split": "^1.0.1",
+    "sqlite3": "^5.1.7",
+    "through": "^2.3.8"
   }
 }
