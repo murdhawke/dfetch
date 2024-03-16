@@ -4,9 +4,9 @@ const dailyData = require('../modules/daily.js');
 let converter = require('json-2-csv');
 const fs = require('fs');
 const moment =  require('moment');
-const { Client } = require('pg');
     through = require('through'),
     split = require('split');
+const dbLauncher = require('./db.js');
 
 
 const todayDate = new Date();
@@ -43,18 +43,7 @@ inFile.pipe(split())
 }
 
 async function copyQuery(){
-
-    const client = new Client({
-      host: 'localhost',
-      port: 5432,
-      user: 'postgres',
-      password: 'amos1023',
-      database: 'forex',
-    });
-    await client.connect();
-    const query = "COPY rates FROM '/home/amos/forex/data/daily" + ' ' + formattedDate + ".csv' DELIMITER ',' CSV HEADER";
-    console.log('Connected to PostgreSQL database');
-    return client;
+   await dbLauncher.testDB();
 }
 // writeDaily(); // run the primary function
 copyQuery()

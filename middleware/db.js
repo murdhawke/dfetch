@@ -17,7 +17,7 @@ const testDB = async () => {
     }
 }
 
-testDB();
+
 
 module.exports = {
     sq: sequelize,
