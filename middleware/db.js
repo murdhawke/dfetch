@@ -17,7 +17,7 @@ const testDB = async () => {
     }
 }
 
-testDB();
+//No need to run this function.  Will be run when needed. It is globally exported.
 
 module.exports = {
     sq: sequelize,
