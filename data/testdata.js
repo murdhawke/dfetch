@@ -7,7 +7,7 @@ const filePath = path.join(__dirname, './data.csv');
 async function copyQuery() {
   try {
     const writeQuery = await sq.query(`COPY dailyusd FROM '${filePath}' DELIMITER ',' CSV HEADER`  );
-    console.log(writeQuery);
+    console.log("Data written successfully!!");
   } catch (error) {
     console.log('THE ERROR IS:', error);
   }
