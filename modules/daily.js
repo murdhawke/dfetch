@@ -54,8 +54,6 @@ function tranformRates() {
           
           // Merge currency_rates into the outer object
           const mergedData = { ...data, ...rates.data };
-          
-          console.log(mergedData)
           fs.writeFileSync('data.json', JSON.stringify(mergedData));
           return mergedData;
       })
