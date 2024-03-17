@@ -1,4 +1,5 @@
 const axios = require("axios");
+const fs = require('fs')
 
 
 const jsonData = {};
@@ -21,53 +22,42 @@ function fetchDaily() {
   }
   
 //Transform the rates{} object into an array and create a clean json object
-// async function tranformRates() {
-//     const data = await fetchDaily();
-//     const rates = Object.entries(data.rates);
-//     const cleanRates = {};
-//     for (const [key, value] of rates) {
-//         cleanRates[key] = value; // create a new json object with the rates lalbels and the values
-//     }
-//     const timestamp = data.timestamp;
-//     const date = data.date;
-//     const base = data.base;
-//     const terms = data.terms;
-//     const privacy = data.privacy;
-//     const cleanInfo = {
-//         "date": date,
-//         "base": base,
-//         "timestamp": timestamp,
-//         "terms": terms,
-//         "privacy": privacy,
+async function tranformRates() {
+    const data = await fetchDaily();
+    const rates = Object.entries(data.rates);
+    const cleanRates = {};
+    for (const [key, value] of rates) {
+        cleanRates[key] = value; // create a new json object with the rates lalbels and the values
+    }
+    const time = data.timestamp;
+    const date = data.date;
+    const base = data.base;
+    const terms = data.terms;
+    const privacy = data.privacy;
+    const cleanInfo = {
+        "date": date,
+        "base": base,
+        "timestamp": time,
+        "terms": terms,
+        "privacy": privacy,
 
-//     }
-//     // Merge the two json objects
-//     const jsonData = ({ ...cleanInfo, ...cleanRates });
-//     return (jsonData);
-// }
+    }
+    // Merge the two json objects
+    const jsonData = ({ ...cleanInfo, ...cleanRates });
+    return (jsonData);
+}
 function tranformRates() {
     return fetchDaily()
       .then(data => {
-        const rates = Object.entries(data.rates);
-        const cleanRates = {};
-        for (const [key, value] of rates) {
-          cleanRates[key] = value; // create a new JSON object with the rates labels and the values
-        }
-        const timestamp = data.timestamp;
-        const date = data.date;
-        const base = data.base;
-        const terms = data.terms;
-        const privacy = data.privacy;
-        const cleanInfo = {
-          "date": date,
-          "base": base,
-          "timestamp": timestamp,
-          "terms": terms,
-          "privacy": privacy,
-        };
-        // Merge the two JSON objects
-        const jsonData = { ...cleanInfo, ...cleanRates };
-        return jsonData;
+          // Extract rates from the data object
+          const { rates } = data;
+          
+          // Merge currency_rates into the outer object
+          const mergedData = { ...data, ...rates.data };
+          
+          console.log(mergedData)
+          fs.writeFileSync('data.json', JSON.stringify(mergedData));
+          return mergedData;
       })
       .catch(error => {
         throw error; // Re-throwing the error for error handling at the caller level
@@ -76,13 +66,13 @@ function tranformRates() {
   
   
   //Function to save data to PostgreSQL database
-  // Function to create table based on JSON data labels
-//   async function saveData() {
-//     const dataJSON = await tranformRates();
-//     console.log(JSON.stringify(dataJSON));
-//     return dataJSON;
+  //Function to create table based on JSON data labels
+  async function saveData() {
+    const dataJSON = await tranformRates();
+    console.log(JSON.stringify(dataJSON));
+    return dataJSON;
 
-//   }
+  }
 
 function saveData() {
     return tranformRates()
@@ -94,7 +84,7 @@ function saveData() {
       });
   }
 
-
+saveData();
 module.exports = {
     saveData,
 }
