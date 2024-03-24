@@ -15,3 +15,6 @@ cron.schedule('* * * * *', () => {
     scheduleDaily();
 })
 
+module.exports = {
+    scheduleDaily
+}
